@@ -1,0 +1,47 @@
+{
+  "name": "paramedic-triage-app",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "dependencies": {
+    "@react-native-community/netinfo": "12.0.1",
+    "@reduxjs/toolkit": "^2.12.0",
+    "expo": "~57.0.4",
+    "expo-status-bar": "~57.0.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.0",
+    "react-native-mmkv": "^4.3.2",
+    "react-native-web": "^0.21.2",
+    "react-redux": "^9.3.0"
+  },
+  "devDependencies": {
+    "@react-native/jest-preset": "^0.86.0",
+    "@testing-library/react-native": "^14.0.1",
+    "@types/jest": "^30.0.0",
+    "@types/react": "~19.2.2",
+    "jest": "^29.7.0",
+    "jest-expo": "^57.0.1",
+    "test-renderer": "^1.2.0",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "test": "jest --watchAll=false --forceExit"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest-setup.ts"
+    ],
+    "moduleNameMapper": {
+      "^immer$": "<rootDir>/node_modules/immer/dist/cjs/index.js"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)"
+    ]
+  },
+  "private": true
+}

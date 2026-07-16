@@ -1,4 +1,4 @@
-import triageReducer, { refresh, submitTriage, setIsManualMode, setManualOnline } from '../store/triageSlice';
+import triageReducer, { refresh, submitTriage } from '../store/triageSlice';
 import { triageRepository } from '../data/triageRepository';
 import { configureStore } from '@reduxjs/toolkit';
 import { TriageRecord } from '../domain/types';
@@ -33,22 +33,7 @@ describe('triageSlice Redux reducer', () => {
       queue: [],
       allRecords: [],
       isOnline: true,
-      isManualMode: false,
-      manualOnline: true,
-      simulatedFailure: false,
     });
-  });
-
-  test('should handle setIsManualMode and setManualOnline actions', () => {
-    let state = triageReducer(undefined, { type: 'unknown' });
-    
-    state = triageReducer(state, setIsManualMode(true));
-    expect(state.isManualMode).toBe(true);
-    expect(state.simulatedFailure).toBe(false);
-    
-    state = triageReducer(state, setManualOnline(false));
-    expect(state.manualOnline).toBe(false);
-    expect(state.simulatedFailure).toBe(true);
   });
 
 

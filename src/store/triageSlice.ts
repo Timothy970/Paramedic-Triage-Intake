@@ -37,9 +37,6 @@ const slice = createSlice({
     queue: triageRepository.pending(),
     allRecords: triageRepository.getAll(),
     isOnline: true,
-    isManualMode: mockApiConfig.getIsManualMode(),
-    manualOnline: mockApiConfig.getManualOnline(),
-    simulatedFailure: mockApiConfig.getSimulatedFailure(),
   },
   reducers: {
     refresh: (state) => {
@@ -48,22 +45,6 @@ const slice = createSlice({
     },
     setOnline: (state, action) => {
       state.isOnline = action.payload;
-    },
-    setIsManualMode: (state, action) => {
-      state.isManualMode = action.payload;
-      mockApiConfig.setIsManualMode(action.payload);
-      state.simulatedFailure = action.payload && !state.manualOnline;
-    },
-    setManualOnline: (state, action) => {
-      state.manualOnline = action.payload;
-      mockApiConfig.setManualOnline(action.payload);
-      state.simulatedFailure = state.isManualMode && !action.payload;
-    },
-    setSimulatedFailure: (state, action) => {
-      state.simulatedFailure = action.payload;
-      mockApiConfig.setSimulatedFailure(action.payload);
-      state.isManualMode = true;
-      state.manualOnline = !action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -74,6 +55,6 @@ const slice = createSlice({
   },
 });
 
-export const { refresh, setOnline, setIsManualMode, setManualOnline, setSimulatedFailure } = slice.actions;
+export const { refresh, setOnline } = slice.actions;
 export default slice.reducer;
 

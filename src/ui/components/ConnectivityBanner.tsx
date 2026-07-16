@@ -1,17 +1,15 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store/store';
-import { refresh, setOnline, setIsManualMode, setManualOnline } from '../../store/triageSlice';
+import { refresh, setOnline } from '../../store/triageSlice';
 import { flushQueue } from '../../sync/syncEngine';
 import { COLORS, SPACING, TYPOGRAPHY } from '../theme';
 
 export function ConnectivityBanner() {
   const dispatch = useDispatch();
   const isOnline = useSelector((state: RootState) => state.triage.isOnline);
-  const isManualMode = useSelector((state: RootState) => state.triage.isManualMode);
-  const manualOnline = useSelector((state: RootState) => state.triage.manualOnline);
   const pendingQueue = useSelector((state: RootState) => state.triage.queue);
 
   useEffect(() => {
@@ -22,29 +20,11 @@ export function ConnectivityBanner() {
     return () => unsubscribe();
   }, [dispatch]);
 
-  const handleToggleManualMode = (val: boolean) => {
-    dispatch(setIsManualMode(val));
-    const nextOnline = val ? manualOnline : isOnline;
-    if (nextOnline) {
-      // Wait a tick so the state is fully updated before syncing
-      setTimeout(() => triggerForceSync(), 50);
-    }
-  };
-
-  const handleToggleSimulatedConnection = (online: boolean) => {
-    dispatch(setManualOnline(online));
-    if (online) {
-      setTimeout(() => triggerForceSync(), 50);
-    }
-  };
-
   const triggerForceSync = () => {
     flushQueue(() => {
       dispatch(refresh());
     });
   };
-
-  const appIsOnline = isManualMode ? manualOnline : isOnline;
 
   return (
     <View style={styles.container}>
@@ -52,15 +32,11 @@ export function ConnectivityBanner() {
       <View
         style={[
           styles.statusBar,
-          { backgroundColor: appIsOnline ? COLORS.success : COLORS.error },
+          { backgroundColor: isOnline ? COLORS.success : COLORS.error },
         ]}
       >
         <Text style={styles.statusText}>
-          {isManualMode
-            ? manualOnline
-              ? '● Simulated Online Mode'
-              : '▲ Simulated Offline Mode'
-            : isOnline
+          {isOnline
             ? '● Connected (Online)'
             : '▲ Disconnected (Offline Mode)'}
         </Text>
@@ -71,33 +47,14 @@ export function ConnectivityBanner() {
         )}
       </View>
 
-      {/* Simulator Control Panel */}
-      <View style={styles.controlPanel}>
-        <View style={styles.row}>
-          <Text style={styles.controlLabel}>Manual Network Override</Text>
-          <Switch
-            value={isManualMode}
-            onValueChange={handleToggleManualMode}
-            trackColor={{ false: '#444444', true: COLORS.success }}
-            thumbColor="#ffffff"
-          />
-        </View>
-        <View style={[styles.row, { marginTop: SPACING.sm, opacity: isManualMode ? 1 : 0.5 }]}>
-          <Text style={styles.controlLabel}>Simulate Status (ON = Online, OFF = Offline)</Text>
-          <Switch
-            value={manualOnline}
-            onValueChange={handleToggleSimulatedConnection}
-            disabled={!isManualMode}
-            trackColor={{ false: '#444444', true: COLORS.success }}
-            thumbColor="#ffffff"
-          />
-        </View>
-        {pendingQueue.length > 0 && (
+      {/* Info panel when there are local pending records */}
+      {pendingQueue.length > 0 && (
+        <View style={styles.infoPanel}>
           <Text style={styles.infoText}>
-            {pendingQueue.length} patient record{pendingQueue.length > 1 ? 's' : ''} saved locally. Will upload automatically.
+            {pendingQueue.length} patient record{pendingQueue.length > 1 ? 's' : ''} saved locally. Will upload automatically when online.
           </Text>
-        )}
-      </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -130,26 +87,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: TYPOGRAPHY.sizes.caption + 1,
   },
-  controlPanel: {
+  infoPanel: {
     backgroundColor: COLORS.surface,
-    padding: SPACING.md,
+    padding: SPACING.sm,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  controlLabel: {
-    color: COLORS.text,
-    fontSize: TYPOGRAPHY.sizes.body - 1,
   },
   infoText: {
     color: COLORS.textMuted,
     fontSize: TYPOGRAPHY.sizes.caption,
-    marginTop: SPACING.xs,
     fontStyle: 'italic',
   },
 });
+
 

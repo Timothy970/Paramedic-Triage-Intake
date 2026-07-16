@@ -7,8 +7,6 @@ describe('syncEngine', () => {
   beforeEach(() => {
     triageRepository.clearAll();
     jest.restoreAllMocks();
-    api.mockApiConfig.setIsManualMode(false);
-    api.mockApiConfig.setManualOnline(true);
   });
 
   test('successful upload marks record as synced', async () => {
@@ -85,41 +83,6 @@ describe('syncEngine', () => {
 
     expect(postSpy).not.toHaveBeenCalled();
     expect(triageRepository.pending()).toHaveLength(1);
-  });
-
-  test('syncs or blocks based on manual override status regardless of real network state', async () => {
-    const postSpy = jest.spyOn(api, 'postTriage').mockResolvedValue();
-    
-    triageRepository.saveAll([
-      {
-        id: '4',
-        patientName: 'Manual Mode Test',
-        condition: 'Fracture',
-        priority: 4,
-        status: 'Pending',
-        createdAt: Date.now(),
-        synced: false,
-      },
-    ]);
-
-    // Case 1: Real network is connected, but manual mode is enabled and simulated online is false (offline)
-    (NetInfo as any).__setConnected(true);
-    api.mockApiConfig.setIsManualMode(true);
-    api.mockApiConfig.setManualOnline(false);
-
-    await flushQueue();
-    expect(postSpy).not.toHaveBeenCalled();
-
-    // Case 2: Real network is offline, but manual mode is enabled and simulated online is true
-    (NetInfo as any).__setConnected(false);
-    api.mockApiConfig.setManualOnline(true);
-
-    await flushQueue();
-    expect(postSpy).toHaveBeenCalledTimes(1);
-    expect(triageRepository.pending()).toHaveLength(0);
-
-    // Reset manual mode back to false for other tests
-    api.mockApiConfig.setIsManualMode(false);
   });
 });
 
